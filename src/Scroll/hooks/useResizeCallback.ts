@@ -4,7 +4,11 @@ import ResizeObserver from 'resize-observer-polyfill';
 function useResizeCallback(target: any, callback: any): void {
   React.useLayoutEffect(() => {
     const el =
-      typeof target === 'function' ? target() : target && 'current' in target ? target.current : target;
+      typeof target === 'function'
+        ? target()
+        : target && 'current' in target
+        ? target.current
+        : target;
 
     if (!el) return;
 

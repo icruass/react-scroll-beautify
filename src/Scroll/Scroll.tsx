@@ -158,8 +158,8 @@ function Scroll(props: ScrollProps, ref: React.Ref<any>) {
       newScrollTop <= minScrollTop
         ? minScrollTop
         : newScrollTop >= maxScrollTop
-        ? maxScrollTop
-        : newScrollTop;
+          ? maxScrollTop
+          : newScrollTop;
 
     setScrollTop(newScrollTopRangeLimit);
     scrollTopStateRef.current = newScrollTopRangeLimit;
@@ -176,8 +176,8 @@ function Scroll(props: ScrollProps, ref: React.Ref<any>) {
       newScrollLeft <= minScrollLeft
         ? minScrollLeft
         : newScrollLeft >= maxScrollLeft
-        ? maxScrollLeft
-        : newScrollLeft;
+          ? maxScrollLeft
+          : newScrollLeft;
 
     setScrollLeft(newScrollLeftRangeLimit);
     scrollLeftStateRef.current = newScrollLeftRangeLimit;

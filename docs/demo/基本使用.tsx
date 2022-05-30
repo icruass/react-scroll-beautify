@@ -18,7 +18,7 @@ function Demo() {
       minWidth: 1200,
       width: '100%',
       backgroundImage: 'linear-gradient(-96deg, #e27a7a, #c19997, #91b3b5, #19cbd4)'
-    }}/>
+    }} />
   );
 
   const style: any = {
