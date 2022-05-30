@@ -17,6 +17,7 @@ function Test() {
   return (
     <div>
       <div
+        ref={scrollXBarHookRes.trackRef}
         style={{
           width: scrollXBarHookRes.trackClient,
           height: 8,
@@ -44,6 +45,7 @@ function Test() {
       <div style={{ margin: '20px 0' }} />
 
       <div
+        ref={scrollYBarHookRes.trackRef}
         style={{
           width: 10,
           boxSizing: 'border-box',

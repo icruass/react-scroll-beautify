@@ -1,49 +1,37 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from 'react';
 import useScrollBar from './hooks/useScrollBar';
+import { getComponentRef } from "./utils"
 
 export type ScrollBarProps = {
-  disabled?: boolean;
   barType?: 'x' | 'y';
-  transition?: string;
-
-  thumbColor?: string;
-  thumbStyle?: React.CSSProperties;
-  thumbProps?: any;
-  thumbRef?: any;
-  thumbClient?: number | string;
-  thumbOffset?: number | string;
+  scrollElementRef?: any;
 
   trackColor?: string;
   trackStyle?: React.CSSProperties;
   trackProps?: any;
   trackRef?: any;
 
-  onThumbMove?: any;
-  onTrackClick?: any;
-
-  scrollElementRef?: any;
+  thumbColor?: string;
+  thumbStyle?: React.CSSProperties;
+  thumbProps?: any;
+  thumbRef?: any;
 };
 
 function ScrollBar(props: ScrollBarProps) {
   const {
-    disabled,
     barType,
-    transition,
-
-    thumbColor,
-    thumbStyle: thumbStyleProp,
-    thumbProps = {},
-    thumbRef: thumbRefProp,
+    scrollElementRef,
 
     trackColor,
     trackStyle: trackStyleProp,
-    trackProps = {},
+    trackProps: trackPropsProp = {},
     trackRef: trackRefProp,
 
-    onThumbMove: onThumbMoveProp,
-    onTrackClick: onTrackClickProp,
-    scrollElementRef,
+    thumbColor,
+    thumbStyle: thumbStyleProp,
+    thumbProps: thumbPropsProp = {},
+    thumbRef: thumbRefProp,
   } = props;
 
   const { trackRef, thumbRef, thumbClient, thumbOffset, trackClient } = useScrollBar({
@@ -51,161 +39,68 @@ function ScrollBar(props: ScrollBarProps) {
     barType,
   });
 
-  const mouseDownMoveRef = React.useRef<any>(null);
+  const getThumbRef = getComponentRef([thumbRef, thumbRefProp]);
 
-  const getTrackRef = (i: any) => {
-    trackRef.current = i;
-    if (typeof trackRefProp === 'function') {
-      trackRefProp(i);
-    } else if (trackRefProp && 'current' in trackRefProp) {
-      trackRefProp.current = i;
-    }
-  };
+  const thumbDynamicStyle: any = React.useMemo(() => ({
+    background: thumbColor || 'rgba(0, 0, 0, .5)',
 
-  const getThumbRef = (i: any) => {
-    thumbRef.current = i;
-    if (typeof thumbRefProp === 'function') {
-      thumbRefProp(i);
-    } else if (thumbRefProp && 'current' in thumbRefProp) {
-      thumbRefProp.current = i;
-    }
-  };
+    ...(barType === 'x' && {
+      height: '100%',
+      width: thumbClient,
+      transform: `translate3d(${thumbOffset}px, 0px, 0px)`,
+    }),
 
-  const trackStyle: any = React.useMemo(() => {
-    return {
-      background: 'transparent',
-      ...(barType === 'x' && { height: 10 }),
-      ...(barType === 'y' && { width: 10 }),
-      zIndex: 9999,
-      ...trackProps.style,
-      ...trackStyleProp,
-      ...(trackColor && { background: trackColor }),
-      position: 'absolute',
-      userSelect: 'none',
-      ...(barType === 'x' && { left: 0, bottom: 0, width: '100%' }),
-      ...(barType === 'y' && { top: 0, right: 0, height: '100%' }),
-      ...(disabled && { display: 'none' }),
-    };
-  }, [trackStyleProp, trackProps.style, barType, disabled]);
+    ...(barType === 'y' && {
+      width: '100%',
+      height: thumbClient,
+      transform: `translate3d(0px, ${thumbOffset}px, 0px)`,
+    }),
+  }), [
+    thumbColor,
+    thumbClient,
+    thumbOffset,
+    barType,
+  ]);
 
-  const thumbStyle: any = React.useMemo(() => {
-    return {
-      background: 'rgba(0, 0, 0, .5)',
+  const thumbProps = {
+    ref: getThumbRef,
+    style: {
       cursor: 'pointer',
       userSelect: 'none',
       borderRadius: 4,
-      ...(barType === 'x' && { height: '100%' }),
-      ...(barType === 'y' && { width: '100%' }),
-      transition: `transform ${transition}`,
-      ...thumbProps.style,
+      ...thumbDynamicStyle,
+      ...thumbPropsProp.style,
       ...thumbStyleProp,
-      ...(thumbColor && { background: thumbColor }),
-      ...(barType === 'x' && {
-        width: thumbClient,
-        transform: `translate3d(${thumbOffset}px, 0px, 0px)`,
-      }),
-      ...(barType === 'y' && {
-        height: thumbClient,
-        transform: `translate3d(0px, ${thumbOffset}px, 0px)`,
-      }),
-      ...(mouseDownMoveRef.current && { transition: 'none' }),
-    };
-  }, [
-    thumbStyleProp,
-    thumbProps.style,
-    thumbClient,
-    thumbOffset,
-    mouseDownMoveRef.current,
-    barType,
-    transition,
-  ]);
+    },
+  }
 
-  const onTrackClick = (e: any) => {
-    const clickClientX = e.clientX;
-    const clickClientY = e.clientY;
-    const thumbClientRect = thumbRef.current.getBoundingClientRect();
-    const thumbClientX = thumbClientRect.left;
-    const thumbClientY = thumbClientRect.top;
+  const renderThumb = <div {...thumbProps} />;
 
-    const thumbOffsetX = clickClientX - thumbClientX;
-    const thumbOffsetY = clickClientY - thumbClientY;
+  const getTrackRef = getComponentRef([trackRef, trackRefProp]);
 
-    if (onTrackClickProp) {
-      onTrackClickProp(e, { thumbOffsetX, thumbOffsetY });
+  const trackDynamicStyle: any = React.useMemo(() => ({
+    background: trackColor || 'transparent',
+    ...(barType === 'x' && { height: 10, width: trackClient, left: 0, bottom: 0 }),
+    ...(barType === 'y' && { width: 10, height: trackClient, right: 0, top: 0, }),
+  }), [trackClient, barType, trackColor]);
+
+  const trackProps = {
+    ...trackPropsProp,
+    ref: getTrackRef,
+    children: renderThumb,
+    style: {
+      userSelect: 'none',
+      zIndex: 9999,
+      position: 'absolute',
+      ...trackDynamicStyle,
+      ...trackPropsProp.style,
+      ...trackStyleProp,
     }
-    if (trackProps.onClick) {
-      trackProps.onClick(e);
-    }
-  };
+  }
 
-  const onThumbClick = (e: any) => {
-    e.stopPropagation();
+  const renderTrack = <div {...trackProps} />;
 
-    if (thumbProps.onClick) {
-      thumbProps.onClick(e);
-    }
-  };
-
-  const onThumbMove = (moveEvent: any) => {
-    const downEvent = mouseDownMoveRef.current;
-    if (!downEvent) return document.removeEventListener('mousemove', onThumbMove);
-    if (!downEvent) return document.removeEventListener('touchmove', onThumbMove);
-
-    const downMousePosition =
-      downEvent.targetTouches && downEvent.targetTouches[0]
-        ? { x: downEvent.targetTouches[0].pageX, y: downEvent.targetTouches[0].pageY }
-        : { x: downEvent.x, y: downEvent.y };
-    const moveMousePosition =
-      moveEvent.targetTouches && moveEvent.targetTouches[0]
-        ? { x: moveEvent.targetTouches[0].pageX, y: moveEvent.targetTouches[0].pageY }
-        : { x: moveEvent.x, y: moveEvent.y };
-    const offsetY = moveMousePosition.y - downMousePosition.y;
-    const offsetX = moveMousePosition.x - downMousePosition.x;
-
-    if (onThumbMoveProp) {
-      onThumbMoveProp(moveEvent, { downEvent, offsetY, offsetX });
-    }
-  };
-
-  const onThumbMouseDown = (e: any) => {
-    e.stopPropagation();
-    e.preventDefault();
-    mouseDownMoveRef.current = e;
-    document.addEventListener('mousemove', onThumbMove);
-    document.documentElement.addEventListener('touchmove', onThumbMove);
-  };
-
-  const onDocumentMouseUp = () => {
-    mouseDownMoveRef.current = null;
-  };
-
-  React.useEffect(() => {
-    if (thumbRef.current) {
-      thumbRef.current.addEventListener('mousedown', onThumbMouseDown);
-      thumbRef.current.addEventListener('touchstart', onThumbMouseDown);
-    }
-    return () => {
-      if (thumbRef.current) {
-        thumbRef.current.removeEventListener('mousedown', onThumbMouseDown);
-        thumbRef.current.removeEventListener('touchstart', onThumbMouseDown);
-      }
-    };
-  }, [onThumbMouseDown]);
-
-  React.useEffect(() => {
-    document.addEventListener('mouseup', onDocumentMouseUp);
-    document.addEventListener('touchend', onDocumentMouseUp);
-    return () => {
-      document.removeEventListener('mouseup', onDocumentMouseUp);
-      document.removeEventListener('touchend', onDocumentMouseUp);
-    };
-  }, [onDocumentMouseUp]);
-
-  return (
-    <div ref={getTrackRef} style={trackStyle} {...trackProps} onClick={onTrackClick}>
-      <div ref={getThumbRef} style={thumbStyle} {...thumbProps} onClick={onThumbClick} />
-    </div>
-  );
+  return renderTrack;
 }
 
 export default ScrollBar;

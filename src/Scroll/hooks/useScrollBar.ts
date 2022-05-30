@@ -30,7 +30,8 @@ export type UseScrollBarResult = {
 };
 
 function useScrollBar(options: UseScrollBarOptions): UseScrollBarResult {
-  const { barType, scrollElementRef } = options;
+  const { barType } = options;
+  const scrollElementRef = options.scrollElementRef ? options.scrollElementRef : { current: null };
 
   const trackRef = React.useRef<any>();
   const thumbRef = React.useRef<any>();
@@ -86,6 +87,33 @@ function useScrollBar(options: UseScrollBarOptions): UseScrollBarResult {
 
   const onScroll = () => {
     updateThumbOffset();
+  };
+
+  const onTrackClick = (e: any) => {
+    const clickClientX = e.clientX;
+    const clickClientY = e.clientY;
+    const thumbClientRect = thumbRef.current.getBoundingClientRect();
+    const thumbClientX = thumbClientRect.left;
+    const thumbClientY = thumbClientRect.top;
+
+    const thumbOffsetX = clickClientX - thumbClientX;
+    const thumbOffsetY = clickClientY - thumbClientY;
+
+    if (barType == 'x' && scrollElementRef.current) {
+      const newThumbOffset =
+        latestStateRef.current.thumbOffset +
+        latestStateRef.current.thumbClient * (thumbOffsetX > 0 ? 1 : -1);
+      const newScrollLeft = getScrollLeftByThumbOffset(scrollElementRef.current, newThumbOffset);
+      scrollElementRef.current.scrollLeft = newScrollLeft;
+    }
+
+    if (barType == 'y' && scrollElementRef.current) {
+      const newThumbOffset =
+        latestStateRef.current.thumbOffset +
+        latestStateRef.current.thumbClient * (thumbOffsetY > 0 ? 1 : -1);
+      const newScrollTop = getScrollTopByThumbOffset(scrollElementRef.current, newThumbOffset);
+      scrollElementRef.current.scrollTop = newScrollTop;
+    }
   };
 
   const onThumbMove = (moveEvent: any) => {
@@ -158,6 +186,7 @@ function useScrollBar(options: UseScrollBarOptions): UseScrollBarResult {
     scrollElementRef.current.addEventListener('scroll', onScroll);
 
     return () => {
+      if (!scrollElementRef.current) return;
       scrollElementRef.current.removeEventListener('scroll', onScroll);
     };
   }, [scrollElementRef.current]);
@@ -170,6 +199,7 @@ function useScrollBar(options: UseScrollBarOptions): UseScrollBarResult {
     thumbRef.current.addEventListener('touchend', onThumbMouseup);
 
     return () => {
+      if (!thumbRef.current) return;
       thumbRef.current.removeEventListener('mousedown', onThumbMouseDown);
       thumbRef.current.removeEventListener('touchstart', onThumbMouseDown);
       thumbRef.current.removeEventListener('mouseup', onThumbMouseup);
@@ -186,6 +216,18 @@ function useScrollBar(options: UseScrollBarOptions): UseScrollBarResult {
       document.removeEventListener('touchend', onDocumentMouseUp);
     };
   }, []);
+
+  React.useLayoutEffect(() => {
+    if (!trackRef.current) return;
+    trackRef.current.addEventListener('click', onTrackClick);
+    trackRef.current.addEventListener('touch', onTrackClick);
+
+    return () => {
+      if (!trackRef.current) return;
+      trackRef.current.removeEventListener('click', onTrackClick);
+      trackRef.current.removeEventListener('touch', onTrackClick);
+    };
+  }, [trackRef.current]);
 
   return {
     thumbClient,

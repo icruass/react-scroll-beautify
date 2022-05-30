@@ -98,3 +98,16 @@ export function getAgentIsMobile() {
 
   return mobile_flag;
 }
+
+export function getComponentRef(_refs: any) {
+  return (instance: any) => {
+    const refs = Array.isArray(_refs) ? _refs : [_refs];
+    refs.forEach(ref => {
+      if (typeof ref === 'function') {
+        ref(instance);
+      } else if (ref && 'current' in ref) {
+        ref.current = instance;
+      }
+    });
+  };
+}
