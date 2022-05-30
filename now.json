@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "react-scroll-beautify",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@now/static-build",
+      "config": { "distDir": ".doc" }
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/dist/$1" }
+  ]
+}

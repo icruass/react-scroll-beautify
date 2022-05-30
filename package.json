@@ -1,0 +1,74 @@
+{
+  "name": "react-scroll-beautify",
+  "version": "0.0.1",
+  "description": "",
+  "engines": {
+    "node": ">=8.x"
+  },
+  "keywords": [
+    "ui",
+    "react",
+    "react component",
+    "scroll",
+    "scroll component",
+    "scroll beautify",
+    "react scroll beautify",
+    "react-scroll-beautify"
+  ],
+  "files": [
+    "assets/*.css",
+    "dist",
+    "es",
+    "lib"
+  ],
+  "main": "./lib/index",
+  "module": "./es/index",
+  "types": "./lib/index.d.ts",
+  "homepage": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "dumi dev",
+    "docs:build": "dumi build",
+    "docs:deploy": "gh-pages -d .doc",
+    "compile": "father build && lessc assets/index.less assets/index.css",
+    "deploy": "npm run docs:build && npm run docs:deploy",
+    "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\"",
+    "test": "father test",
+    "coverage": "father test --coverage",
+    "prepublishOnly": "npm run compile && np --no-cleanup --yolo --no-publish",
+    "lint": "eslint src/ --ext .tsx,.ts",
+    "lint:tsc": "tsc -p tsconfig.json --noEmit",
+    "now-build": "npm run docs:build"
+  },
+  "peerDependencies": {
+    "react": ">=16.9.0",
+    "react-dom": ">=16.9.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/enzyme": "^3.10.5",
+    "@types/jest": "^27.0.3",
+    "@types/react": "^17.0.35",
+    "@types/react-dom": "^17.0.10",
+    "@types/shallowequal": "^1.1.1",
+    "@umijs/fabric": "^2.0.0",
+    "cross-env": "^7.0.0",
+    "dumi": "^1.1.9",
+    "enzyme": "^3.1.0",
+    "enzyme-adapter-react-16": "^1.0.1",
+    "enzyme-to-json": "^3.1.2",
+    "eslint": "^7.1.0",
+    "father": "^2.22.0",
+    "father-build": "^1.18.6",
+    "gh-pages": "^3.1.0",
+    "glob": "^7.1.6",
+    "less": "^3.10.3",
+    "np": "^7.0.0",
+    "prettier": "^2.0.1",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-test-renderer": "^16.0.0",
+    "regenerator-runtime": "^0.13.7",
+    "typescript": "^4.0.3"
+  }
+}
